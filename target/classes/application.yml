@@ -1,9 +1,0 @@
-app.name:
-  jigsaw
-spark.home:
-  c:/Stuff/spark-2.1.0-bin-hadoop-2.7
-master.uri:
-  local
-badWords:
-  и,не,в,the,на,i,что,to,and,a,а,по,in,за,у,of,с,но,как,из,no,не,от,for,on,is,it,только,о
-
