@@ -5,5 +5,6 @@ spark.home:
 master.uri:
   local
 badWords:
-  и,не,в,the,на,i,что,to,and,a,а,по,in,за,у,of,с,но,как,из,no,не,от,for,on,is,it,только,о
+  и,не,в,the,на,i,что,to,and,a,а,по,in,за,у,of,с,но,как,из,no,не,от,for,on,is,it,только,о,я,ты,you,это,так,my,me,we,меня,
+  все,im,all,that,так,with,like,that,тебя,где,by,so,dont,be,то,к,там,или,припев,this
 

@@ -1,4 +1,4 @@
-package com.zhuinden.sparkexperiment;
+package com.CommonWords.sparkAudio;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.springframework.beans.factory.annotation.Autowired;
