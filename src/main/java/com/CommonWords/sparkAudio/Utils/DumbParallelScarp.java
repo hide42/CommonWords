@@ -1,4 +1,4 @@
-package com.CommonWords.sparkAudio;
+package com.CommonWords.sparkAudio.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 public class DumbParallelScarp {
     public static final int THREAD_COUNT = 8; // SHOULD BE POWER OF TWO
 
-    public static List<String> parallelSort(String[] array) {
+    public static List<String> parallelGetText(String[] array) {
         Thread[] threads = new Thread[THREAD_COUNT];
         ArrayList<String> list = new ArrayList<>();
         final String[][] chunks = splitOnChunks(array, THREAD_COUNT);
@@ -16,7 +16,7 @@ public class DumbParallelScarp {
         for (int i = 0; i < THREAD_COUNT; i++) {
             final String[] chunk = chunks[i];
 
-            threads[i] = new Thread(() -> list.addAll(Arrays.stream(chunk).map(TextHelper::getText).collect(Collectors.toList())));
+            threads[i] = new Thread(() -> list.addAll(Arrays.stream(chunk).map(n->TextHelper.getText(n)).collect(Collectors.toList())));
 
             threads[i].start();
         }

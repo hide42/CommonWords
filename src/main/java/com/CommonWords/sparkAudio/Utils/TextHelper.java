@@ -1,4 +1,4 @@
-package com.CommonWords.sparkAudio;
+package com.CommonWords.sparkAudio.Utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,10 +13,11 @@ public class TextHelper {
             String mainUrl = doc.select(".songs-table > table > tbody > tr > .st-title > a").first().attr("href");
             Document docA = Jsoup.connect("http://www.megalyrics.ru/"+mainUrl).get();
             System.out.println(S+" найдена "+mainUrl);
-            text = docA.select(".text_inner").first().text().toLowerCase().replaceAll("\\pP", "").replaceAll("\\s+"," ");//откуда запятые то?
+            text = docA.select(".text_inner").first().text().replaceAll("\\{.*\\}", "").toLowerCase().replaceAll("\\pP", "").replaceAll("\\s+"," ");//откуда запятые то?
         } catch (IOException | NullPointerException e) {
             System.err.println("Не найдена песня "+S);
         }
         return text;
     }
+
 }
