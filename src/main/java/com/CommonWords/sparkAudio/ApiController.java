@@ -1,6 +1,6 @@
 package com.CommonWords.sparkAudio;
 
-import com.CommonWords.sparkAudio.Utils.SuperList;
+import com.CommonWords.sparkAudio.Entity.SuperMap;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ public class ApiController {
     Consumer consumer;
 
     @Autowired
-    SuperList superList;
+    SuperMap superMap;
 
     @Autowired
     JavaSparkContext javaSparkContext;
@@ -32,10 +32,10 @@ public class ApiController {
 
     @RequestMapping("wordcount")
     public ResponseEntity words() {
-        return new ResponseEntity(javaSparkContext.parallelize(superList.getList()).mapToPair(tuple2->tuple2).reduceByKey((a, b) -> a + b)
+        return new ResponseEntity(javaSparkContext.parallelize(superMap.getList()).mapToPair(tuple2->tuple2)
                 .mapToPair(Tuple2::swap)
                 .sortByKey(false)
-                .mapToPair(Tuple2::swap)
-                .take(10),HttpStatus.OK);
+                .map(Tuple2->Tuple2._2+" "+Integer.toString(Tuple2._1))//mapToPair(Tuple2::swap) для визуализации мб
+                .take(30),HttpStatus.OK);
     }
 }

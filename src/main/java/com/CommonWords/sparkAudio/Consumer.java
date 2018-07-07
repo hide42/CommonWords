@@ -1,11 +1,11 @@
 package com.CommonWords.sparkAudio;
 
-import com.CommonWords.sparkAudio.Utils.SuperList;
+import com.CommonWords.sparkAudio.Entity.PowerRow;
+import com.CommonWords.sparkAudio.Entity.SuperMap;
+import com.datastax.spark.connector.japi.CassandraJavaUtil;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaInputDStream;
@@ -20,8 +20,11 @@ import org.springframework.stereotype.Component;
 import scala.Serializable;
 import scala.Tuple2;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.Pattern;
+
+import static com.datastax.spark.connector.japi.CassandraJavaUtil.javaFunctions;
 
 @Component
 public class Consumer extends Thread implements Serializable{
@@ -31,7 +34,7 @@ public class Consumer extends Thread implements Serializable{
     transient JavaSparkContext javaSparkContext;
 
     @Autowired
-    public volatile SuperList superList;
+    public volatile SuperMap superList;
 
     @Value("#{'${badWords}'.split(',')}")
     public List<String> filterWords;
@@ -59,11 +62,15 @@ public class Consumer extends Thread implements Serializable{
                 ConsumerStrategies.Subscribe(topicsSet, kafkaParams));
 
 
-        JavaDStream<String> lines = messages.map(ConsumerRecord::value);
+        JavaDStream<String> lines = messages.map(ConsumerRecord::value);//persist
+        lines.foreachRDD(rdd->{
+            javaFunctions(rdd.map(str->new PowerRow(System.nanoTime(),ByteBuffer.wrap(str.getBytes()))))
+                    .writerBuilder("test", "test", CassandraJavaUtil.mapToRow(PowerRow.class)).saveToCassandra();
+        });
         JavaDStream<String> words = lines.flatMap(x -> Arrays.asList(SPACE.split(x)).iterator());
         JavaPairDStream<String, Integer> wordCounts = words.filter(word->!filterWords.contains(word)).mapToPair(s -> new Tuple2<>(s, 1))
                 .reduceByKey((i1, i2) -> i1 + i2);
-        wordCounts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) rdd -> {
+        wordCounts.foreachRDD( rdd -> {//can write this rdd to cassandra
             Iterator<Tuple2<String, Integer>> iterator = rdd.collect().iterator();
             while (iterator.hasNext()) {
                 superList.add(iterator.next());
